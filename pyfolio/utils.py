@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import division
+from __future__ import division, print_function
+import sys
 from datetime import datetime
 import errno
 from os import makedirs, environ
@@ -510,7 +511,7 @@ def get_symbol_rets(symbol, start=None, end=None):
                                     end=end)
 
 
-def print_table(table, name=None, fmt=None):
+def print_table(table, name=None, fmt=None, return_text=sys.stdout):
     """
     Pretty print a pandas DataFrame.
 

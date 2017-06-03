@@ -12,8 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import division
+from __future__ import division, print_function
 
+import sys
 from time import time
 import warnings
 
@@ -217,7 +218,8 @@ def create_returns_tear_sheet(returns, positions=None,
                               cone_std=(1.0, 1.5, 2.0),
                               benchmark_rets=None,
                               bootstrap=False,
-                              return_fig=False):
+                              return_fig=False,
+                              return_text=sys.stdout):
     """
     Generate a number of plots for analyzing a strategy's returns.
 
@@ -262,16 +264,17 @@ def create_returns_tear_sheet(returns, positions=None,
 
     returns = returns[returns.index > benchmark_rets.index[0]]
 
-    print("Entire data start date: %s" % returns.index[0].strftime('%Y-%m-%d'))
-    print("Entire data end date: %s" % returns.index[-1].strftime('%Y-%m-%d'))
+    print("Entire data start date: %s" % returns.index[0].strftime('%Y-%m-%d'), file=return_text)
+    print("Entire data end date: %s" % returns.index[-1].strftime('%Y-%m-%d'), file=return_text)
 
     plotting.show_perf_stats(returns, benchmark_rets,
                              positions=positions,
                              transactions=transactions,
                              bootstrap=bootstrap,
-                             live_start_date=live_start_date)
+                             live_start_date=live_start_date,
+                             return_text=return_text)
 
-    plotting.show_worst_drawdown_periods(returns)
+    plotting.show_worst_drawdown_periods(returns, return_text=return_text)
 
     # If the strategy's history is longer than the benchmark's, limit strategy
     if returns.index[0] < benchmark_rets.index[0]:
@@ -388,10 +391,11 @@ def create_returns_tear_sheet(returns, positions=None,
     for ax in fig.axes:
         plt.setp(ax.get_xticklabels(), visible=True)
 
-    plt.show()
+    
     if return_fig:
         return fig
-
+    else:
+        plt.show()
 
 @plotting_context
 def create_position_tear_sheet(returns, positions,

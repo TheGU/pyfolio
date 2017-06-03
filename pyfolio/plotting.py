@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import division
+from __future__ import division, print_function
 from collections import OrderedDict
 
 import pandas as pd
@@ -21,6 +21,7 @@ import scipy as sp
 
 import datetime
 import pytz
+import sys
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -576,7 +577,7 @@ STAT_FUNCS_PCT = [
 
 def show_perf_stats(returns, factor_returns, positions=None,
                     transactions=None, live_start_date=None,
-                    bootstrap=False):
+                    bootstrap=False, return_text=sys.stdout):
     """
     Prints some performance metrics of the strategy.
 
@@ -660,7 +661,7 @@ def show_perf_stats(returns, factor_returns, positions=None,
         ]), axis=1)
     else:
         print('Backtest months: ' +
-              str(int(len(returns) / APPROX_BDAYS_PER_MONTH)))
+              str(int(len(returns) / APPROX_BDAYS_PER_MONTH)), file=return_text)
         perf_stats = pd.DataFrame(perf_stats_all, columns=['Backtest'])
 
     for column in perf_stats.columns:
@@ -669,7 +670,10 @@ def show_perf_stats(returns, factor_returns, positions=None,
                 perf_stats.loc[stat, column] = str(np.round(value * 100,
                                                             1)) + '%'
 
-    utils.print_table(perf_stats, fmt='{0:.2f}')
+    if return_text and not return_text==sys.stdout: 
+        print(perf_stats, file=return_text)
+    else:
+        utils.print_table(perf_stats, fmt='{0:.2f}')
 
 
 def plot_returns(returns,
@@ -1619,7 +1623,7 @@ def plot_daily_returns_similarity(returns_backtest, returns_live,
     return ax
 
 
-def show_worst_drawdown_periods(returns, top=5):
+def show_worst_drawdown_periods(returns, top=5, return_text=sys.stdout):
     """
     Prints information about the worst drawdown periods.
 
@@ -1636,8 +1640,12 @@ def show_worst_drawdown_periods(returns, top=5):
     """
 
     drawdown_df = timeseries.gen_drawdown_table(returns, top=top)
-    utils.print_table(drawdown_df.sort_values('Net drawdown in %',
-                                              ascending=False),
+    result = drawdown_df.sort_values('Net drawdown in %',
+                                              ascending=False)
+    if return_text and not return_text==sys.stdout:
+        print(result, file=return_text)
+    else:
+        utils.print_table(result,
                       name='Worst drawdown periods', fmt='{0:.2f}')
 
 
