@@ -662,7 +662,12 @@ def show_perf_stats(returns, factor_returns, positions=None,
     else:
         print('Backtest months: ' +
               str(int(len(returns) / APPROX_BDAYS_PER_MONTH)), file=return_text)
-        perf_stats = pd.DataFrame(perf_stats_all, columns=['Backtest'])
+        if bootstrap:
+            perf_stats = pd.concat(OrderedDict([
+                ('All', perf_stats_all),
+            ]), axis=1)            
+        else: 
+            perf_stats = pd.DataFrame(perf_stats_all, columns=['Backtest'])
 
     for column in perf_stats.columns:
         for stat, value in perf_stats[column].iteritems():
